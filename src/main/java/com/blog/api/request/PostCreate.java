@@ -1,4 +1,4 @@
-package com.blog.request;
+package com.blog.api.request;
 
 import lombok.Getter;
 import lombok.Setter;
