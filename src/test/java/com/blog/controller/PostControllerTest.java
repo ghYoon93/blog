@@ -12,6 +12,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -121,8 +126,37 @@ class PostControllerTest {
                 )
                 .andExpect( status().isOk() )
                 .andExpect( jsonPath( "$.id" ).value( post.getId() ) )
-                .andExpect( jsonPath( "$.title" ).value( post.getTitle() ) )
+                .andExpect( jsonPath( "$.title" ).value( "1234567890" ) )
                 .andExpect( jsonPath(  "$.content" ).value( post.getContent() ) )
+                .andDo( print() );
+    }
+
+    @Test
+    @DisplayName( "글 여러개 조회" )
+    void test5() throws Exception {
+        // given
+        List<Post> requestPosts = IntStream.range(1, 31)
+                .mapToObj( i ->
+                        Post.builder()
+                                .title("제목 "  + i)
+                                .content("본문 " +i)
+                                .build()).collect(Collectors.toList());
+
+        postRepository.saveAll(requestPosts);
+        // 클라이언트 요구사항
+        // json 응답에서 title 값 길이를 최대 10글자로 해주세요.
+        // 이런 처리는 클라이언트에서 하는 것이 좋다.
+
+
+        // expected
+        mockMvc.perform( get( "/posts?page=1&size=5&sort=id,desc" )
+                        .contentType( APPLICATION_JSON )
+                )
+                .andExpect( status().isOk() )
+                .andExpect(jsonPath("$.length()", is(5)))
+                .andExpect(jsonPath("$[0].id").value(30))
+                .andExpect(jsonPath("$[0].title").value("제목 30"))
+                .andExpect(jsonPath("$[0].content").value("본문 30"))
                 .andDo( print() );
     }
 

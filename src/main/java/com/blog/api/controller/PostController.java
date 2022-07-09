@@ -6,9 +6,12 @@ import com.blog.api.response.PostResponse;
 import com.blog.api.service.PostService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
 @AllArgsConstructor
@@ -16,10 +19,7 @@ import javax.validation.Valid;
 public class PostController {
 
     private final PostService postService;
-    @GetMapping("/posts")
-    public String get() {
-        return "Hello World";
-    }
+
 
     @PostMapping("/posts")
     public void post(@RequestBody @Valid PostCreate request ) {
@@ -48,9 +48,16 @@ public class PostController {
     @GetMapping( "/posts/{postId}/rss" )
     public PostResponse getRss(@PathVariable( name = "postId" ) Long id) {
 
-        PostResponse response = postService.get(id);
+        return postService.get(id);
         // 응답 클래스를 분리하자 (서비스 정책에 맞는)
+    }
 
-        return response;
+
+    // 조회 API
+    // 지난 시간 = 단건 조회 API (1개의 글 Post를 가져오는 기능)
+    // 이번 시간 = 여러개의 글을 조회 API
+    @GetMapping("/posts")
+    public List<PostResponse> getList(Pageable pageable) {
+        return postService.getList( pageable );
     }
 }
