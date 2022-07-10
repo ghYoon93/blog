@@ -2,6 +2,7 @@ package com.blog.api.controller;
 
 import com.blog.api.domain.Post;
 import com.blog.api.request.PostCreate;
+import com.blog.api.request.PostSearch;
 import com.blog.api.response.PostResponse;
 import com.blog.api.service.PostService;
 import lombok.AllArgsConstructor;
@@ -57,7 +58,7 @@ public class PostController {
     // 지난 시간 = 단건 조회 API (1개의 글 Post를 가져오는 기능)
     // 이번 시간 = 여러개의 글을 조회 API
     @GetMapping("/posts")
-    public List<PostResponse> getList(Pageable pageable) {
-        return postService.getList( pageable );
+    public List<PostResponse> getList(@ModelAttribute PostSearch postSearch ) {
+        return postService.getList( postSearch );
     }
 }
