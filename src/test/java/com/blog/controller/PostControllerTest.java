@@ -3,6 +3,7 @@ package com.blog.controller;
 import com.blog.api.domain.Post;
 import com.blog.api.repository.PostRepository;
 import com.blog.api.request.PostCreate;
+import com.blog.api.request.PostEdit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,8 +20,7 @@ import java.util.stream.IntStream;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -186,6 +186,37 @@ class PostControllerTest {
                 .andExpect(jsonPath("$[0].id").value(30))
                 .andExpect(jsonPath("$[0].title").value("제목 30"))
                 .andExpect(jsonPath("$[0].content").value("본문 30"))
+                .andDo( print() );
+    }
+
+    @Test
+    @DisplayName( "글 수정" )
+    void test7() throws Exception {
+        // given
+        // given
+        Post post = Post.builder().
+                title( "foo" )
+                .content( "bar" )
+                .build();
+        postRepository.save( post );
+
+
+        // when
+        PostEdit postEdit = PostEdit.builder()
+                .title("호돌걸")
+                .content("초가집")
+                .build();
+        // 클라이언트 요구사항
+        // json 응답에서 title 값 길이를 최대 10글자로 해주세요.
+        // 이런 처리는 클라이언트에서 하는 것이 좋다.
+
+
+        // expected
+        mockMvc.perform( patch( "/posts/{postId}", post.getId() )
+                        .contentType( APPLICATION_JSON )
+                        .content(objectMapper.writeValueAsString(postEdit))
+                )
+                .andExpect( status().isOk() )
                 .andDo( print() );
     }
 

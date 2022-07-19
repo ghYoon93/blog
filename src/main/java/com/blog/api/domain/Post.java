@@ -1,9 +1,6 @@
 package com.blog.api.domain;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -25,6 +22,20 @@ public class Post {
     public Post(String title, String content) {
         this.title = title;
         this.content = content;
+    }
+
+    public void change(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
+
+    public PostEditor.PostEditorBuilder toEditor() {
+        return PostEditor.builder().title(title).content(content);
+    }
+
+    public void edit(PostEditor postEdit) {
+        title = postEdit.getTitle();
+        content = postEdit.getContent();
     }
 
     /* 서비스의 정책을 넣지마세요!!! 절대!!!

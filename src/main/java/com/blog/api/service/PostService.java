@@ -1,8 +1,10 @@
 package com.blog.api.service;
 
 import com.blog.api.domain.Post;
+import com.blog.api.domain.PostEditor;
 import com.blog.api.repository.PostRepository;
 import com.blog.api.request.PostCreate;
+import com.blog.api.request.PostEdit;
 import com.blog.api.request.PostSearch;
 import com.blog.api.response.PostResponse;
 import lombok.AllArgsConstructor;
@@ -11,6 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.yaml.snakeyaml.nodes.CollectionNode;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,7 +57,7 @@ public class PostService {
 
     // 글이 너무 많은 경우 -> 비용이 너무 많이 든다.
     // 글이 -> 100,000,000 -> DB 글 모두 조회하는 경우 -> DB가 뻗을 수 있다.
-    // DB -> 애플리케이션 서버로 전달하는 시간, 트래픽 비용 등이 많이 발생할 수 있따.
+    // DB -> 애플리케이션 서버로 전달하는 시간, 트래픽 비용 등이 많이 발생할 수 있다.
     public List<PostResponse> getList(PostSearch postSearch ) {
         // web -> page 1 -> 0
 //        return postRepository.findAll( pageable )
@@ -66,6 +70,14 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void edit(Long id, PostEdit postEdit) {
+        Post post = postRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글"));
+        PostEditor.PostEditorBuilder postEditorBuilder = post.toEditor();
 
+        PostEditor postEditor = postEditorBuilder.title(postEdit.getTitle()).content(postEdit.getContent()).build();
+
+        post.edit(postEditor);
+    }
 
 }

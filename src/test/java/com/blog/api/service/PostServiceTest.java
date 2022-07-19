@@ -3,6 +3,7 @@ package com.blog.api.service;
 import com.blog.api.domain.Post;
 import com.blog.api.repository.PostRepository;
 import com.blog.api.request.PostCreate;
+import com.blog.api.request.PostEdit;
 import com.blog.api.request.PostSearch;
 import com.blog.api.response.PostResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -102,6 +103,31 @@ class PostServiceTest {
         assertEquals(10L, savedPosts.size());
         assertEquals("제목 30", savedPosts.get(0).getTitle());
         assertEquals("제목 26", savedPosts.get(4).getTitle());
+
+    }
+
+    @Test
+    @DisplayName( "글 제목 수정" )
+    void test4() {
+        // given
+        Post post = Post.builder().
+                title( "foo" )
+                .content( "bar" )
+                .build();
+        postRepository.save( post );
+
+
+        // when
+        PostEdit postEdit = PostEdit.builder()
+                .title("호돌걸")
+                .content("초가집")
+                .build();
+
+        postService.edit(post.getId(), postEdit);
+        // then
+        Post changed = postRepository.findById(post.getId()).orElseThrow(() -> new RuntimeException("글이 존재하지 않습니다. id =" + post.getId()));
+        assertEquals("호돌걸", changed.getTitle());
+        assertEquals("초가집", changed.getContent());
 
     }
 }
